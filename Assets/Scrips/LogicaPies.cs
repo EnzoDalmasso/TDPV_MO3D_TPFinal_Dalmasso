@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class LogicaPies : MonoBehaviour
 {
-    public Player player;
+    public Player player;//Clase Player
 
 
     // Start is called before the first frame update
@@ -21,12 +21,12 @@ public class LogicaPies : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        player.puedoSaltar = true;
+        player.puedoSaltar = true;//Si el player esta en colisionando con el suelo puede realizar el salto 
     }
 
     private void OnTriggerExit(Collider other)
     {
-        player.puedoSaltar = false;
+        player.puedoSaltar = false;//Si el player esta en el aire no puede realizar otro salto 
     }
 
 }
