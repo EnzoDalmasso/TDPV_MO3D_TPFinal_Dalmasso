@@ -1,14 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using Unity.VisualScripting;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using Image = UnityEngine.UI.Image;
 
 public class Player : MonoBehaviour
 {
-    public float velocidad = 8.0f;//Velocidad del Player para caminar 
-    public float velocidadrotate = 100.0f;//Velocidad del Player para rotar
+ 
+    public float velocidad = 5.0f;//Velocidad del Player para caminar 
     public Animator anim;//Animaciones
     public float x, y;//Variables que se utilizan para poder mover el personaje en Ejes X e Y
 
@@ -19,10 +15,12 @@ public class Player : MonoBehaviour
     public bool estoyAtacando;//Booleano para revisar si se puede golpear
 
 
-    public int hp;//Variable de vida del personaje
-    public int danioPunio;//Variable de daño que genera el personaje al golpear 
+    public float hpMax;//Variable de vida maxima del personaje
+    public float danioPunio;//Variable de daño que genera el personaje al golpear 
 
-  
+    public Image barraVida;
+
+
     void Start()
     {
         puedoSaltar = false;//Se inicializa la variable de saltar en false
@@ -36,8 +34,7 @@ public class Player : MonoBehaviour
         if (!estoyAtacando)//Si el personaje no esta atacando
         {
             //Se puede mover hacia los costados o hacia adelante u atras
-            transform.Rotate(0, x * velocidadrotate * Time.deltaTime  , 0);
-            transform.Translate(0,0,y*Time.deltaTime*velocidad);
+            transform.Translate(x * Time.deltaTime * velocidad, 0, y * Time.deltaTime * velocidad);
            
         }
         
@@ -48,45 +45,47 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        x = Input.GetAxis("Horizontal");
-        y = Input.GetAxis("Vertical");
 
-        if (Input.GetKeyDown(KeyCode.Mouse0)&& puedoSaltar&& !estoyAtacando)//Si se detecta el click, el personaje no esta saltando y no esta atacando
-        {
-            anim.SetTrigger("golpeo");//Llamamos a la animacion de ataque 
-            estoyAtacando= true;//Ataque es verdadero
-        }
-        
-        anim.SetFloat("VelX", x);
-        anim.SetFloat("VelY", y);
+            hpMax = Mathf.Clamp(hpMax, 0, 100);
+            barraVida.fillAmount = hpMax/14;
 
-        
-        if (puedoSaltar) //El personaje puede saltar
-        {
-            if (!estoyAtacando)//Si no esta atacando 
+            x = Input.GetAxis("Horizontal");
+            y = Input.GetAxis("Vertical");
+
+            if (Input.GetKeyDown(KeyCode.Mouse0) && puedoSaltar && !estoyAtacando)//Si se detecta el click, el personaje no esta saltando y no esta atacando
             {
-                if (Input.GetKeyDown(KeyCode.Space))//Se detecta el boton space
-                {
-                    anim.SetBool("salte", true);//Se activa la animacion de salto
-                    rb.AddForce(new Vector3(0, salto, 0), ForceMode.Impulse);//Realiza un salto hacia arriba
-                }
-                
+            
+                anim.SetTrigger("golpeo");//Llamamos a la animacion de ataque 
+                estoyAtacando = true;//Ataque es verdadero
             }
-            anim.SetBool("tocoSuelo", true);//Activo booleano en caso que el personaje este tocando el suelo nuevamente
-        }
-        else
-        {
-            estoyCayendo();
-        }
 
-      
+            anim.SetFloat("VelX", x);
+            anim.SetFloat("VelY", y);
 
-        // Oculta el cursor del mouse
-        Cursor.visible = false;
 
-        // Centra el cursor en la pantalla
-        Cursor.lockState = CursorLockMode.Locked;
+            if (puedoSaltar) //El personaje puede saltar
+            {
+                if (!estoyAtacando)//Si no esta atacando 
+                {
+                    if (Input.GetKeyDown(KeyCode.Space))//Se detecta el boton space
+                    {
+                        anim.SetBool("salte", true);//Se activa la animacion de salto
+                        rb.AddForce(new Vector3(0, salto, 0), ForceMode.Impulse);//Realiza un salto hacia arriba
+                    }
+
+                }
+                anim.SetBool("tocoSuelo", true);//Activo booleano en caso que el personaje este tocando el suelo nuevamente
+            }
+            else
+            {
+                estoyCayendo();
+            }
+
+
+
+     
     }
+       
 
     //Esta funcion se utiliza para saber si el personaje todavia sigue en el aire 
     public void estoyCayendo()
@@ -109,16 +108,19 @@ public class Player : MonoBehaviour
         if (other.gameObject.tag == "manos")
         {
             //Le va a quitar vida al Player
-            Debug.Log("PUÑO");
-            hp -= danioPunio;
+            hpMax -= danioPunio;
+            
+
         }
-        if (hp <= 0)
+        if (hpMax <= 0)
         {
-            Debug.Log("MORII");
+            Destroy(gameObject);
         }
+
     }
 
-
+  
+ 
    
 
 }

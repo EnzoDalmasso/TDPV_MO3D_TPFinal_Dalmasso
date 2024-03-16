@@ -8,6 +8,7 @@ TagManager:
   - arma
   - Enemigo
   - manos
+  - GeneradorEnemigo
   layers:
   - Default
   - TransparentFX

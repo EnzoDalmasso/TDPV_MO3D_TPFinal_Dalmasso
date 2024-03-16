@@ -1,8 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Threading;
+using System;
 using UnityEngine;
-using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 public class Enemigo : MonoBehaviour
 {
@@ -22,8 +20,13 @@ public class Enemigo : MonoBehaviour
     public bool atacando;//Booleano que se utiliza para saber si esta atacando
     public bool muerto;//Booleano que se utiliza para saber si el Zombi esta muerto
 
-    public float clear_Cuerpo = 0;//Inicializo un timer para eliminar un cuerpo
-    public float tiempo_Ataque;//Inicializo un timer para tener tiempo entre golpe y golpe
+    private float clear_Cuerpo = 0;//Inicializo un timer para eliminar un cuerpo
+    private float tiempo_Ataque;//Inicializo un timer para tener tiempo entre golpe y golpe
+
+    public Enemigo actual;//Enemigo actual
+    public Action morir;//accion que avisa cuando muere el enemigo actual
+
+    bool freno_signal=false;//Booleano que se utilzia para avisarle al generador 
 
     // Start is called before the first frame update
     void Start()
@@ -31,6 +34,13 @@ public class Enemigo : MonoBehaviour
         ani = GetComponent<Animator>();//Inicializamos la animacion
         target = GameObject.Find("Player");//Inicializamos el objeto 
         
+        
+
+    }
+
+    private void Awake()
+    {
+        actual = this;
     }
 
     // Update is called once per frame
@@ -38,7 +48,7 @@ public class Enemigo : MonoBehaviour
     //Funcion donde vamos a darle los comportamientos a nuestro enemigo
     public void Comportamiento_Enmigo()
     {
-        if (target != null && muerto == false)//Si el player existe y no esta muerto
+        if (target != null && !muerto)//Si el player existe y no esta muerto
         {
             if (Vector3.Distance(transform.position, target.transform.position) > 5)//Si el Player esta en un radio mayor de 5 
             {
@@ -88,7 +98,7 @@ public class Enemigo : MonoBehaviour
 
                 }
                 //Si el Player esta en un radio menor a 1 el zombi va activar la animacion de ataque
-                else if (tiempo_Ataque >= 1)
+                else if (tiempo_Ataque >= 0)
                 {
 
                     ani.SetBool("walk", false);
@@ -116,13 +126,14 @@ public class Enemigo : MonoBehaviour
 
         eliminar_Zombi();
         tiempo_Ataque += Time.deltaTime;//Inicializo el tiempo de ataque del zombi
+      
     }
 
     //Esta funcion la utilizo para avisarle a la animacion de ataque que el zombi dejo de atacar
     public void Final_Ani()
 
     {
-        
+
             ani.SetBool("attack", false);//Desactivo animacion de ataque
             atacando = false;
             tiempo_Ataque= 0;//reseteo el tiempo de ataque
@@ -132,12 +143,16 @@ public class Enemigo : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-
+        
         //Si el Zombi recibe el gole con un arma(Espada)
         if (other.gameObject.tag == "arma")
         {
+          
             hp -= danioArma;//Se le resta la vida
+  
         }
+
+ 
 
         if (hp <= 0)//Si el zombi se queda sin vida
         {
@@ -150,22 +165,42 @@ public class Enemigo : MonoBehaviour
             ani.SetBool("run", false);//Se desactiva animacion de correr
 
         }
-       
+    
+
     }
     //Esta funcion se utiliza para eliminar el cuerpo del zombi
     private void eliminar_Zombi()
     {
         if (muerto==true)//Si el zombi esta muerto
         {
-            clear_Cuerpo += Time.deltaTime;//Iniciamos un contador 
+           
+
+            if (freno_signal==false)
+            {
+
+                //Tiro la señal para que alguien la escuche
+                actual.morir();  
+                freno_signal = true;
+
+            }
             
+
+            clear_Cuerpo += Time.deltaTime;//Iniciamos un contador 
+
             if (clear_Cuerpo >= 5)//Si el contador es mayor e igual a 5 se va a eliminar el cuerpo del zombi
             {
-                Destroy(gameObject);
+
+               Destroy(gameObject);
             }
+
         }
-        
+
+       
     }
+
+
+
+
 }
    
    
