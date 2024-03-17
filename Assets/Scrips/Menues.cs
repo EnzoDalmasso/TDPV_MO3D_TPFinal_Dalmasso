@@ -63,25 +63,28 @@ public class Menues : MonoBehaviour
 
     }
 
-   
-    public void SalirMenu()//Funcion para mandar al menu inicial
+    //Funcion para mandar al menu inicial
+    public void SalirMenu()
     {
         SceneManager.LoadScene(0);
 
     }
 
-
+    //Esta funcion se utiliza para reiniciar el nivel 1
     public void ReintentarLvl1()
     {
         SceneManager.LoadScene(1);
 
     }
+
+    //Esta funcion se utiliza para reiniciar el nivel 2
     public void ReintentarLvl2()
     {
         SceneManager.LoadScene(2);
 
     }
 
+    //Esta funcion se utiliza para avanzar a la siguiente escena 
     public void siguienteNivel()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex+1);
